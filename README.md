@@ -1,37 +1,33 @@
-本项目是`基于深度学习的图像融合系统`
-
-* 运行前需要先搭建`caffe`框架,运行模式为CPU
-* 修改代码中的路径为自己的路径即可
-* 新建`sourseImages`、`train`、`val`三个空文件夹
-* 在`train`文件夹里再新建`0`和`1`两个文件夹
-* 需要先下载`ImageNet`的`ILSVRC2012`的5万张验证集自然采集图像保存到`sourseImages`文件夹里
-
----
-
-第一步运行`imageInitialize.m`生成训练集到`train`文件夹里的`0`和`1`文件夹里
-
-第二步运行`create_val.m`生成验证集图像到`val`文件夹里
-
-第三步运行`imag2txt.sh`生成`train.txt`和`val.txt`两个文件
-
-第四步运行`create_lmdb.sh`生成`train_lmdb`和`val_lmdb`两个文件夹,里面存放对应的`lmdb`数据格式文件
-
-第五步运行`time.sh`查看网络各个`layer`所占用的时间,运行`draw_net.sh`来绘制神经网络
-
-第六步运行`train_net.sh`来训练网络,网络日志保存到`log`文件夹里,`model`保存到`models`文件夹里
-
----
-
-生成`loss`图和`accuracy`图在`log`文件夹里进行操作,具体看`log`文件夹中的`README.md`
-
----
-
-对于训练最后生成的`caffemodel`要转换为`mat`格式才可以在`matlab`中进行验证导入.
-
-在models文件夹中的`load_caffemodel.py`文件生成`caffemodel.mat`,
-
-复制`caffemodel.mat`到`CNN_Fusion`文件夹中的`model`文件夹即可
-
----
-
-最后一步的验证部分在`Final_val`文件夹中,具体的介绍在该文件夹中的`README.md`文件夹里有介绍
+Language Switch: [简体中文](./README.zh-CN)
+# SamAI-CV-ImageFusion
+## 🍧Intro
+SamAI-CV-ImageFusion is build for the multi-source image focusing problem. By constructing a CNN classification model that can distinguish clear and blurred image blocks, and then fusing images with different depth of field into images with complete information through fusion rules, the overall detail information of the image can be improved in a similar HDR way in the focusing area.
+## 🍧Result
+Running `Evaluation/CNN_Fusion/Script.m` to have a result:
+![ImageFusion](https://cdn.nlark.com/yuque/0/2021/gif/437349/1630327292873-edcae938-1ed2-44ff-957a-13b7abdeff27.gif)
+[Video Link](https://cloud.video.taobao.com/play/u/437349/p/1/d/hd/e/6/t/1/324831602650.mp4?auth_key=YXBwX2tleT04MDAwMDAwMTImYXV0aF9pbmZvPXsidGltZXN0YW1wRW5jcnlwdGVkIjoiYjhjOTllMDBlNjQwOTEyNWJhNmQxYjY1MzU0N2ExODgifSZkdXJhdGlvbj0mdGltZXN0YW1wPTE2MzAzNDI4Mjg=)
+## 🍧RUN
+### 🔖Training
+1. Before running this project, We have to make sure a 'Cafe' framework be settled. My computer is MAC without CUDA, so the running mode is set to CPU, which is very inefficient. It is recommended to change to GPU mode, and the training speed is at least hundreds of times worse.
+2. Modify the path in the code to your own path. Create three empty folders, 'sourseimages', 'train' and 'Val'
+3. Create two new folders '0' and '1' in the 'train' folder
+4. We need to download 50000 verification sets of 'ilsvrc2012' of 'Imagenet' and save the naturally collected images to the 'sourseimages' folder
+5. Run 'imageinitialize.m' to generate training sets into '0' and '1' folders in the 'train' folder
+6. Run `create_Val.m` generate the verification set image into the 'Val' folder
+7. Run `imag2txt.Sh` to generate 'train.txt' and 'val.txt'
+8. Run `create_LMDB.sh` to generate `train_LMDB` and `val_LMDB` two folders, which store the corresponding 'LMDB' data format files
+9. Run `time.sh` to view the time occupied by each 'layer' of the network, and run `draw_Net.Sh` to draw neural networks
+10. Run `train_Net.Sh` to train the network. Save the network log in the 'log' folder and the 'model' in the 'models' folder
+11. Generate 'loss' and' accuracy 'diagrams and operate in the 'log' folder. See 'README.md' in the 'log' folder for details
+12. For training, the final generated 'caffemodel' must be converted to 'mat' format before it can be verified and imported in 'matlab'
+13. Run `load_Caffemodel.py` file in the models folder to generation `caffemodel.mat`
+14. Copy 'caffemodel.mat' to 'model' folder in the `CNN_Fusion` folder
+### 🔖Evaluation
+> The results of four kinds of image fusion should put into PSNR and SSIM files and compared with the original image to produce the final evaluation
+* `CNN_Fusion`: it is the verification part of this project. Complete the experiment in MATLAB and run script. M, including CNN_ Fusion. M deals with analog networks and image fusion files
+* `DCT`: image fusion algorithm based on discrete cosine transform
+* `sourceImages`: store multi focus images which used for image fusion
+* `GFF`: image fusion based on guided filter
+* `DWT`: image fusion generates results through wavemanu in MATLAB
+* `PSNR`: the PSNR folder is used to run the peak signal-to-noise ratio evaluation
+* `SSIM`: SSIM folder is used to run image structure similarity evaluation
