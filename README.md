@@ -1,4 +1,4 @@
-Language Switch: [简体中文](./README.zh-CN)
+Language Switch: [简体中文](./README.zh-CN.md)
 # SamAI-CV-ImageFusion
 ## 🍧Intro
 SamAI-CV-ImageFusion is build for the multi-source image focusing problem. By constructing a CNN classification model that can distinguish clear and blurred image blocks, and then fusing images with different depth of field into images with complete information through fusion rules, the overall detail information of the image can be improved in a similar HDR way in the focusing area.

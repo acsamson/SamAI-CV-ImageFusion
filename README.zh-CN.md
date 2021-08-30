@@ -1,3 +1,4 @@
+Language Switch: [English](./README.md)
 # SamAI-CV-ImageFusion
 ## 🍧Intro
 SamAI-CV-ImageFusion主要是为了解决多源图像聚焦问题，通过构建一个可以区分清晰和模糊图像块的CNN分类模型，再通过融合规则可 实现将不同景深的图像进行融合成信息完整的图像，从而在聚焦方面完成类似HDR方式来实现图像的整体细节信息提升。
