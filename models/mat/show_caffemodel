@@ -1,0 +1,29 @@
+%-----------------------------------------------------
+%                                       caffemodel.mat
+%-----------------------------------------------------
+  Name                   Size                   Bytes  Class     Attributes
+
+  biases_b1_1           64x1                      256  single              
+  biases_b1_2          128x1                      512  single              
+  biases_b1_3          256x1                     1024  single              
+  biases_feature       256x1                     1024  single              
+  biases_output          2x1                        8  single              
+  weights_b1_1           9x64                    2304  single              
+  weights_b1_2          64x9x128               294912  single              
+  weights_b1_3         128x9x256              1179648  single              
+  weights_feature      512x64x256            33554432  single              
+  weights_output       256x1x2                   2048  single              
+
+%-----------------------------------------------------
+%                                               specific
+%-----------------------------------------------------
+    "weights_b1_1"    "conv1_patchsize2"    "9"    "conv1_filters"    "64"    "conv1_patchsize"    "3"
+
+    "weights_b1_2"    "conv2_channels"    "64"    "conv2_patchsize2"    "9"    "conv2_filters"    "128"    "conv2_patchsize"    "3"
+
+    "weights_b1_3"    "conv3_channels"    "128"    "conv3_patchsize2"    "9"    "conv3_filters"    "256"    "conv3_patchsize"    "3"
+
+    "weights_feature"    "conv4_channels"    "512"    "conv4_patchsize2"    "64"    "conv4_filters"    "256"    "conv4_patchsize"    "8"
+
+    "weights_output"    "conv5_channels"    "256"    "conv5_patchsize2"    "1"    "conv5_filters"    "2"    "conv5_patchsize"    "1"
+

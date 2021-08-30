@@ -1,0 +1,392 @@
+ name: "FusionNet"    #融合网络
+layer {
+  name: "data_train"	#数据层
+  type: "Data"
+  top: "data"		#输出数据
+  top: "label"		#输出标记label
+  data_param {
+    source: "/Users/lianshanchun/caffe/examples/imageFusion_Gold/train_lmdb"  #数据源
+    backend: LMDB	#数据格式
+    batch_size: 128	#每次批处理的个数
+    scale:0.00392156	#数据归一化,1/255
+  }
+  include: { phase: TRAIN }	#改层主要是训练层
+}
+layer {
+  name: "data_val"		#该层也是数据层,不过是用来测试的,数据验证层
+  type: "Data"
+  top: "data"
+  top: "label"
+  data_param {
+    source: "/Users/lianshanchun/caffe/examples/imageFusion_Gold/val_lmdb"
+    backend: LMDB
+    batch_size: 50
+    scale: 0.00392156
+  }
+  include: { phase: TEST }
+}
+
+#slice
+#注意,存入的依旧是BGR通道,所以划分也是BGR这样子划分
+layer {
+  name: "slice_input"
+  type: "Slice"
+  bottom: "data"
+  top: "data1"
+  top: "data2"
+  top: "data3"
+  slice_param {			
+    axis: 1			
+    slice_point: 1
+    slice_point: 2
+  }
+}
+
+layer {				#输入数据1
+   name: "silence1"
+   type: "Silence"
+   bottom: "data1"
+}
+
+##############################
+#branch-1				#进行卷积,输入数据源是data3,输出为conv_b1_1
+#1
+layer {
+  name: "conv_b1_1"
+  type: "Convolution"
+  bottom: "data3"
+  top: "conv_b1_1"			#输出为conv_b1_1		
+  param {
+    name: "conv_1_paramw"
+    lr_mult: 1				#学习率系数,最终学习率是它乘以solver中的base_lr
+    decay_mult: 1			#衰退率的系数
+  }
+  param {
+    name: "conv_1_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64		#卷积核个数
+    kernel_size: 3		#卷积核大小
+    stride: 1			#卷积核步长默认为1
+    pad: 1			#用于边缘识别,0是为了不填充,1则填为1(因为0是乘以0还是0,故不填充)
+    weight_filler {		#权值初始化,默认为"constant"值为0,很多时候Xavier作为初始化,也可以设置为gaussion
+      type: "xavier"
+    }
+    bias_filler {		#偏置值初始化,一般设置为constant,值为0
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {				#激活层,ReLU是目前使用最多的激活函数
+  name: "relu_b1_1"
+  type: "ReLU"
+  bottom: "conv_b1_1"		#输入刚刚的输出数据conv_b1_1来通过激活层重新生成conv_b1_1
+  top: "conv_b1_1"
+}
+
+
+#2
+layer {				#把刚刚激活过的卷积层数据conv_b1_1作为输入端进行再次卷积,生成conv_b1_2
+  name: "conv_b1_2"		
+  type: "Convolution"
+  bottom: "conv_b1_1"
+  top: "conv_b1_2"
+  param {
+    name: "conv_2_paramw"	#权值参数的学习率和衰退率各为1
+    lr_mult: 1			
+    decay_mult: 1
+  }
+param {			#偏置值学习率和衰退率各为2和0
+    name: "conv_2_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {	
+    num_output: 128	#卷积核个数
+    kernel_size: 3	#卷积核大小
+    stride: 1		#卷积步数
+    pad: 1		#边缘填充
+    weight_filler {		#权值初始化为Xavier
+      type: "xavier"
+    }
+    bias_filler {		#偏置值初始化为constant
+      type: "constant"
+      value: 0
+    }
+  }
+}	
+layer {				#然后再激活
+  name: "relu_b1_2"
+  type: "ReLU"
+  bottom: "conv_b1_2"
+  top: "conv_b1_2"
+}
+
+
+layer {				#池化层,把刚刚的conv_b1_2激活后的数据作为输入端,池化方式为MAX(默认也为MAX)
+  name: "pool_b1_1"
+  type: "Pooling"
+  bottom: "conv_b1_2"
+  top: "pool_b1_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2		#池化层的核大小
+    stride: 2			#池化的步长默认为1,一般设置为2,即为了防止重叠
+  }
+}
+
+
+#3
+layer {				#把刚刚池化过的数据进行再次卷积, pool_b1_1作为输入端
+  name: "conv_b1_3"
+  type: "Convolution"
+  bottom: "pool_b1_1"
+  top: "conv_b1_3"
+  param {			#参数初始化,权值,学习率,衰退率,和偏置值的初始化
+    name: "conv_3_paramw"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "conv_3_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {	#再次卷积
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu_b1_3"		#把卷积后的数据conv_b1_3进行激活,重新输出conv_b1_3
+  type: "ReLU"
+  bottom: "conv_b1_3"
+  top: "conv_b1_3"
+}
+
+
+##############################
+#branch-2
+#1
+layer {				#把之前的data2数据作为输入端,进行卷积生成conv_b2_1,第二分支
+  name: "conv_b2_1"
+  type: "Convolution"
+  bottom: "data2"
+  top: "conv_b2_1"
+  param {
+    name: "conv_1_paramw"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "conv_1_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu_b2_1"
+  type: "ReLU"
+  bottom: "conv_b2_1"
+  top: "conv_b2_1"
+}
+
+
+#2				#把conv_b2_1在进行卷积一次生成conv_b2_2
+layer {
+  name: "conv_b2_2"
+  type: "Convolution"
+  bottom: "conv_b2_1"
+  top: "conv_b2_2"
+  param {
+    name: "conv_2_paramw"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "conv_2_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu_b2_2"
+  type: "ReLU"
+  bottom: "conv_b2_2"
+  top: "conv_b2_2"
+}
+
+
+layer {				#然后conv_b2_2再进行池化一次生成pool_b2_1
+  name: "pool_b2_1"
+  type: "Pooling"
+  bottom: "conv_b2_2"
+  top: "pool_b2_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+
+#3
+layer {				#再把池化后pool_b2_1再卷积一次,生成conv_b2_3作为输出端
+  name: "conv_b2_3"
+  type: "Convolution"
+  bottom: "pool_b2_1"
+  top: "conv_b2_3"
+  param {
+    name: "conv_3_paramw"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "conv_3_paramb"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {					#把conv_b2_3激活下
+  name: "relu_b2_3"
+  type: "ReLU"
+  bottom: "conv_b2_3"
+  top: "conv_b2_3"
+}
+
+########################		
+
+layer {				#连接两组数据,把之前的两个分支所出生的数据进行连接,输出conv_concat
+  name: "conv_concat"
+  type: "Concat"
+  bottom: "conv_b1_3"
+  bottom: "conv_b2_3"
+  top: "conv_concat"
+}
+
+layer {
+  name: "feature"		#把上层连接过的输出数据在进行卷积一次,输出特征数据feature
+  type: "Convolution"
+  bottom: "conv_concat"
+  top: "feature"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2 
+  }
+  convolution_param {
+    num_output: 256
+    kernel_size: 8
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {				#再把特征数据feature卷积一次输出数据output
+  name: "output"
+  type: "Convolution"
+  bottom: "feature"
+  top: "output"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2  
+  }
+  convolution_param {
+    num_output: 2		#这里的卷积核数量为两个
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {				#把output作为输入端进行输入,sm作为输出端
+  bottom: "output"
+  top: "sm"
+  name: "sm"
+  type: "Softmax"		#进行softmax回归,归一化,改层为测试层
+  include:{phase:TEST}
+}
+
+#loss
+layer {
+  name:"eLoss"			#loss层,把之前的output作为输入端,label也作为输入端
+  bottom:"output"		#进行对比输出Loss值,改层为训练
+  bottom:"label"
+  top:"eLoss"
+  type:"SoftmaxWithLoss"
+  include: {phase:TRAIN}
+}
+
+#accuracy
+layer {				#和Loss层类似,label也作为输入端,输出当前迭代的准确率
+  name: "accuracy"
+  type: "Accuracy"		#测试层
+  bottom: "sm"
+  bottom: "label"
+  top: "accuracy"
+  include:{phase:TEST}
+}
