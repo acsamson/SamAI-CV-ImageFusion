@@ -5,7 +5,7 @@ SamAI-CV-ImageFusion主要是为了解决多源图像聚焦问题，通过构建
 ## 🍧Result
 如果只是为了查看结果， 在MATLAB中运行 `Evaluation/CNN_Fusion/Script.m` 即可。
 ![ImageFusion](https://cdn.nlark.com/yuque/0/2021/gif/437349/1630327292873-edcae938-1ed2-44ff-957a-13b7abdeff27.gif)
-[Video Link](https://cloud.video.taobao.com/play/u/437349/p/1/d/hd/e/6/t/1/324831602650.mp4?auth_key=YXBwX2tleT04MDAwMDAwMTImYXV0aF9pbmZvPXsidGltZXN0YW1wRW5jcnlwdGVkIjoiYjhjOTllMDBlNjQwOTEyNWJhNmQxYjY1MzU0N2ExODgifSZkdXJhdGlvbj0mdGltZXN0YW1wPTE2MzAzNDI4Mjg=)
+[Video Link](https://www.aliyundrive.com/s/GXtgGVmAPng)
 ## 🍧RUN
 ### 🔖Training
 1. 运行前需要先搭建`caffe`框架， 我使用的电脑是mac， 没有CUDA， 因此运行模式设为CPU， 这样是很低效的， 建议改成GPU训练速度至少差上百倍以上。修改代码中的路径为自己的路径即可。
