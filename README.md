@@ -5,7 +5,7 @@ SamAI-CV-ImageFusion is build for the multi-source image focusing problem. By co
 ## 🍧Result
 Running `Evaluation/CNN_Fusion/Script.m` to have a result:
 ![ImageFusion](https://cdn.nlark.com/yuque/0/2021/gif/437349/1630327292873-edcae938-1ed2-44ff-957a-13b7abdeff27.gif)
-[Video Link](https://cloud.video.taobao.com/play/u/437349/p/1/d/hd/e/6/t/1/324831602650.mp4?auth_key=YXBwX2tleT04MDAwMDAwMTImYXV0aF9pbmZvPXsidGltZXN0YW1wRW5jcnlwdGVkIjoiYjhjOTllMDBlNjQwOTEyNWJhNmQxYjY1MzU0N2ExODgifSZkdXJhdGlvbj0mdGltZXN0YW1wPTE2MzAzNDI4Mjg=)
+[Video Link](https://www.aliyundrive.com/s/GXtgGVmAPng)
 ## 🍧RUN
 ### 🔖Training
 1. Before running this project, We have to make sure a 'Cafe' framework be settled. My computer is MAC without CUDA, so the running mode is set to CPU, which is very inefficient. It is recommended to change to GPU mode, and the training speed is at least hundreds of times worse.
